@@ -1,20 +1,41 @@
 {
   "documentationUrl": "https://docs.airbyte.com/integrations/destinations/keap",
   "supported_destination_sync_modes": [
-    "TODO, available options are: 'overwrite', 'append', and 'append_dedup'"
+    "overwrite", "append", "append_dedup"
   ],
   "supportsIncremental": true,
   "connectionSpecification": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Destination Keap",
     "type": "object",
-    "required": ["TODO -- fix me!"],
+    "required": ["keap_app_id", "client_id", "client_secret", "access_token", "refresh_token"],
     "additionalProperties": false,
     "properties": {
-      "TODO": {
+      "keap_app_id": {
         "type": "string",
-        "description": "FIX ME"
-      }
+        "description": "ID of the keap app to connecto to."
+      },
+      "client_id": {
+        "type": "string",
+        "description": "OAuth2 Client ID (API Key)"
+      },
+      "client_secret": {
+        "type": "string",
+        "description": "OAuth2 Client Secret (API Secret)"
+      },
+	  "access_token": {
+		  "type": "string",
+		  "description": "OAuth2 Access Token"
+	  },
+	  "refresh_token": {
+		  "type": "string",
+		  "description": "OAuth2 Refresh Token"
+	  },
+	  "expires_at": {
+		  "type": "string",
+		  "format": "date-time",
+		  "description": "Datetime of expiration of the access token"
+	  }
     }
   }
 }
