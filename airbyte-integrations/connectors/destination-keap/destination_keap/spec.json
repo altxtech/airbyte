@@ -35,6 +35,11 @@
 		  "type": "string",
 		  "format": "date-time",
 		  "description": "Datetime of expiration of the access token"
+	  },
+	  "contact_deduplication_key": {
+		  "type": "string",
+		  "enum": ["work_email", "personal_email", "other_email"],
+		  "description": "Value to use to deduplicate contacts. If not specified, the Personal email will be used"
 	  }
     }
   }
