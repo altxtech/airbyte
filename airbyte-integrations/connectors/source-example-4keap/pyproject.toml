@@ -1,0 +1,29 @@
+[build-system]
+requires = [ "poetry-core>=1.0.0",]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+version = "0.1.0"
+name = "source-example-4keap"
+description = "Source implementation for example-4keap."
+authors = [ "Airbyte <contact@airbyte.io>",]
+license = "MIT"
+readme = "README.md"
+documentation = "https://docs.airbyte.com/integrations/sources/example-4keap"
+homepage = "https://airbyte.com"
+repository = "https://github.com/airbytehq/airbyte"
+packages = [ { include = "source_example_4keap" }, {include = "main.py" } ]
+
+[tool.poetry.dependencies]
+python = "^3.9,<3.12"
+airbyte-cdk = "^0"
+faker = "^25.8.0"
+
+[tool.poetry.scripts]
+source-example-4keap = "source_example_4keap.run:run"
+
+[tool.poetry.group.dev.dependencies]
+requests-mock = "*"
+pytest-mock = "*"
+pytest = "*"
+

@@ -8,7 +8,7 @@ from typing import Any, Iterable, Mapping
  
 from airbyte_cdk.destinations import Destination
 from airbyte_cdk.models import AirbyteConnectionStatus, AirbyteMessage, ConfiguredAirbyteCatalog, Status, Type
-from airbyte_cdk.models.airbyte_protocol import AirbyteControlMessage, AirbyteControlConnectorConfigMessage
+from airbyte_cdk.models.airbyte_protocol import AirbyteControlMessage, AirbyteControlConnectorConfigMessage, AirbyteRecordMessage
 
 import requests
 from time import time
@@ -18,8 +18,8 @@ import json
 
 '''
 Things to worry about at some point (not today):
+    - Error handling and logging
     - idempotency
-    - Error handling
     - Rate limiting
     - Data validation
     - Async requests
@@ -70,85 +70,96 @@ class DestinationKeap(Destination):
 
         for message in input_messages:
 
-            logger.info(f"Received {message.type} message")
             
             if message.type == Type.STATE:
                 logger.info("STATE message received. Confirming.")
                 yield message
 
             elif message.type == Type.RECORD:
+                logger.info("Processing RECORD message.")
+                # TODO - Record processing should be done async. Wait for tasks to finish when we receive a STATE message
+                record = message.record
+                try:
+                    self._process_record(record, config)
 
-                logger.info("RECORD message received. Validating data.")
-                data = message.record.data
+                except Exception as e:
+                    # Log the record for debugging purposes
+                    logger.info(record.json())
+                    raise e
 
-                # TODO - Here we should do some data validation.
-                # - The data should match the schema expected by this destination
-                # - Should specify a supported action / resource
-                # - The payload should match the specified resource
-                
-                if data["resource"] == "contact":
+    
+    def _process_record(self, record: AirbyteRecordMessage, config: Mapping[str, Any]): 
 
-                    payload = data["payload"]
+        logger = logging.getLogger("airbyte")
+        logger.info(f"Stream: {record.stream}\t Emitted At: {record.emitted_at}")
 
-                    logger.info("Sync contact identified")
-                    
-                    logger.info("Identifying deduplication email")
+        # TODO - Data validation on record - should match expected schema 
+        # self._validate_record_data(record.data)
 
-                    # Identify the priority email to search the user by
-                    email_dict = {email["field"]: email["email"] for email in payload["email_addresses"]}
+        if record.data["resource"] == "contact":
+            logger.info("Contact resource identified.")
+            # TODO - Custom KeapContact class
+            contact = record.data["payload"]
+            self._sync_contact(contact, config)
 
-                    # Default priority is personal_email > work_email > other_email
-                    email_priority = ["EMAIL2", "EMAIL1", "EMAIL3"]
-
-                    # Email specified in the configuration overrides default priority
-                    dedup_key = config.get("contact_deduplication_key")
-                    if dedup_key in ["work_email", "personal_email", "other_email"]:
-                        email_field_map = {"work_email": "EMAIL1", "personal_email": "EMAIL2", "other_email": "EMAIL3"}
-                        email_priority.insert(0, email_field_map["dedup_key"])
-
-                    email = None
-                    for field in email_priority:
-                        email = email_dict.get(field)
-                        if email != None:
-                            break
-
-                    # Search for existing contacts
-                    logger.info("Searching for existing contacts")
-                    header = {"Authorization": "Bearer " + config["access_token"]}
-                    query = {"filter": f"email=={email}"}
-                    r = requests.get("https://api.infusionsoft.com/crm/rest/v2/contacts", headers=header, params=query)
-                    r.raise_for_status()
-
-                    found_contacts = r.json()["contacts"]
-                    if len(found_contacts) == 0:
-                        logger.info("Contact does not exist. Creating.")
-                        r = requests.post("https://api.infusionsoft.com/crm/rest/v2/contacts", headers=header, json=payload)
-                        r.raise_for_status()
-                        logger.info(f"Created contact with id: {r.json()['id']}")
-
-                    else:
-
-                        id = found_contacts[0]["id"]
-                        logger.info("Found existing contact. Updating.")
-
-                        # Raise a warning if there are more than one contacts were found
-                        if len(found_contacts) > 1:
-                            logger.warning(f"Multiple contacts were found with the email {email}. The connector will default to updating the first one found, but errors may occur")
-
-                        r = requests.patch(f"https://api.infusionsoft.com/crm/rest/v2/contacts/{id}", headers=header, json=payload)
-                        r.raise_for_status()
+        # TODO: Api Goal...
+        else:
+            raise Exception(f"Unsupported resource: {record.data['resource']}")
 
 
-                            
+    def _sync_contact(self, contact: Mapping[str, Any], config: Mapping[str, Any]):
 
-                elif data["resource"] == "api_goal":
-                    pass
-                    
-                
+        logger = logging.getLogger("airbyte")
 
+        logger.info("Identifying deduplication email...")
 
+        email_dict = {email["field"]: email["email"] for email in contact["email_addresses"]}
+
+        email_priority = ["EMAIL2", "EMAIL1", "EMAIL3"]
+
+        dedup_key = config.get("contact_deduplication_key")
+
+        if dedup_key in ["work_email", "personal_email", "other_email"]:
+            email_field_map = {"work_email": "EMAIL1", "personal_email": "EMAIL2", "other_email": "EMAIL3"}
+            email_priority.insert(0, email_field_map["dedup_key"])
+
+        email = None
+        for field in email_priority:
+            email = email_dict.get(field)
+            if email != None:
+                break
+
+        # Search for existing contacts
+        logger.info("Searching for existing contacts")
+        header = {"Authorization": "Bearer " + config["access_token"]}
+        query = {"filter": f"email=={email}"}
+        r = requests.get("https://api.infusionsoft.com/crm/rest/v2/contacts", headers=header, params=query)
+        if not r.ok:
+            raise Exception(f"Error searching for contacts\t Status Code f{r.status_code}\t Message: {r.json().get('message')}")
         
+        logger.info("Contact search successfull.")
 
+        found_contacts = r.json()["contacts"]
+        if len(found_contacts) == 0:
+            logger.info("Contact does not exist. Creating.")
+            r = requests.post("https://api.infusionsoft.com/crm/rest/v2/contacts", headers=header, json=contact)
+            if not r.ok:
+                raise Exception(f"Error creating contact\t Status Code f{r.status_code}\t Message: {r.json().get('message')}")
+
+            logger.info(f"Created contact with id: {r.json()['id']}")
+
+        else:
+
+            id = found_contacts[0]["id"]
+            logger.info("Found existing contact. Updating.")
+
+            # Raise a warning if there are more than one contacts were found
+            if len(found_contacts) > 1:
+                logger.warning(f"Multiple contacts were found with the email {email}. The connector will default to updating the first one found, but errors may occur")
+
+            r = requests.patch(f"https://api.infusionsoft.com/crm/rest/v2/contacts/{id}", headers=header, json=contact)
+            if not r.ok:
+                raise Exception(f"Error updating contact\t Status Code f{r.status_code}\t Message: {r.json().get('message')}")
 
 
 

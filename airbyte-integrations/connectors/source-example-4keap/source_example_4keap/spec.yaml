@@ -1,0 +1,19 @@
+documentationUrl: https://docsurl.com
+connectionSpecification:
+  $schema: http://json-schema.org/draft-07/schema#
+  title: Example 4keap Spec
+  type: object
+  required:
+    - unique_contacts
+    - contacts_events
+    - api_goals_events
+  properties:
+    unique_contacts:
+      type: number
+      description: Total number of unique contacts to generate events for
+    contacts_events:
+      type: number
+      description: Total number of contact events to emit
+    api_goals_events:
+      type: number
+      description: Total number of API Goals events to emit
