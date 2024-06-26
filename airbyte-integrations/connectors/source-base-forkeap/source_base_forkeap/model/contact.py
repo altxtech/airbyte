@@ -10,7 +10,6 @@ Note to self:
 This right here is cool to do, but it's very easy to endup overegineering this
 '''
 
-
 @dataclass
 class Address(Base):
     country: str
@@ -130,8 +129,13 @@ class OriginRequest(Base):
     ip_address: str
 
     def validate(self):
-        if not re.match(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", self.ip_address):
-            raise ValueError("Invalid IP address")
+
+        ipv4_re = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" 
+        ipv6_re = r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
+
+        if not re.match(ipv4_re, self.ip_address):
+            if not re.match(ipv6_re, self.ip_address):
+                raise ValueError("Invalid IP address")
 
     def to_dict(self) -> dict:
         return {"ip_address": self.ip_address}
@@ -151,6 +155,14 @@ class PhoneNumber(Base):
 
         if self.field not in ["PHONE_NUMBER_FIELD_UNSPECIFIED", "PHONE1", "PHONE2", "PHONE3", "PHONE4", "PHONE5"]:
             raise ValueError("Invalid phone number field")
+
+    def to_dict(self) -> dict:
+        return {
+                "extension": self.extension,
+                "field": self.field,
+                "number": self.number,
+                "type": self.type
+        }
 
 @dataclass
 class SocialAccount:
