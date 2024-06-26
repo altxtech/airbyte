@@ -61,3 +61,16 @@ def test_fake_social_account_with_type():
 def test_create_fake_utm_parameter():
     fake_utm_parameter = gen.fake_utm_parameter()
     assert isinstance(fake_utm_parameter, contact.UtmParameter)
+
+def test_create_fake_contact():
+    
+    fake_contact = gen.fake_contact()
+    assert isinstance(fake_contact, contact.Contact)
+
+def test_create_fake_contact_with_optional_fields():
+    fake_contact = gen.fake_contact(with_company = True, with_custom_field = True)
+    assert isinstance(fake_contact, contact.Contact)
+    assert isinstance(fake_contact.company, contact.Company)
+    assert len(fake_contact.custom_fields) > 0
+    assert isinstance(fake_contact.custom_fields[0],  contact.CustomFieldValue)
+
