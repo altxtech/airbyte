@@ -6,7 +6,7 @@ connectionSpecification:
   required:
     - TODO
   properties:
-    # 'TODO: This schema defines the configuration required for the source. This usually involves metadata such as database and/or authentication information.':
+    # Dependant on each source implementation
     TODO:
       type: string
       description: describe me

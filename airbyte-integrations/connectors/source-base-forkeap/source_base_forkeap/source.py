@@ -20,6 +20,9 @@ class Contacts(Stream):
         stream_slice: Optional[Mapping[str, Any]] = None,
         stream_state: Optional[Mapping[str, Any]] = None,
     ) -> Iterable[StreamData]:
+
+        # TODO: Implement
+
         return []
 
     @property
