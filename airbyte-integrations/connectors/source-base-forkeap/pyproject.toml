@@ -25,4 +25,5 @@ source-base-forkeap = "source_base_forkeap.run:run"
 requests-mock = "*"
 pytest-mock = "*"
 pytest = "*"
+faker = "^25.9.2"
 
