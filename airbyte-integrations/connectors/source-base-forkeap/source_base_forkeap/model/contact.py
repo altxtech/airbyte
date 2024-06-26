@@ -229,7 +229,7 @@ class Contact(Base):
     spouse_name: Optional[str] = None
     suffix: Optional[str] = None
     timezone: Optional[str] = None
-    utm_parameters: Optional[List[UtmParameter]] = None
+    utm_parameters: Optional[UtmParameter] = None
     website: Optional[str] = None
 
     # Data validations
