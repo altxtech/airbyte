@@ -1,7 +1,8 @@
 from source_base_forkeap.model import contact
 from faker import Faker
-from random import  random, choice
-from typing import Optional
+from random import  random, choice, randint
+from typing import Optional, List
+from datetime import date
 
 fake = Faker()
 
@@ -165,3 +166,108 @@ def fake_utm_parameter() -> contact.UtmParameter:
 
     return utm_parameter
 
+def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optional[bool] = False):
+
+    # Contact needs at least one email address
+    email_addresses: List[contact.EmailAddress] = []
+    for _ in range(randint(1,3)):
+        email_addresses.append(fake_email_address())
+
+    f_contact = contact.Contact(email_addresses = email_addresses)
+
+    # Addresses
+    addresses: List[contact.Address] = []
+    for _ in range(randint(0,4)):
+        addresses.append(fake_address())
+
+    if addresses:
+        f_contact.addresses = addresses
+
+    if random() > 0.5:
+        f_contact.anniversary_date = date.fromisoformat(fake.date())
+
+    if random() > 0.5:
+        f_contact.birth_date = date.fromisoformat(fake.date())
+
+    if random() > 0.5:
+        f_contact.contact_type = fake.word()
+
+    if random() > 0.5:
+        f_contact.family_name =  fake.last_name()
+
+    fax_numbers: List[contact.FaxNumber] = []
+    for _ in range(randint(0,3)):
+        fax_numbers.append(fake_fax_number())
+
+    if fax_numbers:
+        f_contact.fax_numbers = fax_numbers
+    
+    if random() > 0.5:
+        f_contact.given_name = fake.first_name()
+
+    if random() > 0.5:
+        f_contact.job_title = fake.job()
+
+    if random() > 0.5:
+        f_contact.lead_source_id = fake.uuid4()
+
+    if random() > 0.5:
+        f_contact.middle_name = fake.last_name()
+
+    if random() > 0.5:
+        f_contact.origin_request = fake_origin_request()
+
+    if random() > 0.5:
+        f_contact.owner_id = fake.uuid4()
+
+    phone_numbers: List[contact.PhoneNumber] = []
+    for _ in range(randint(0,6)):
+        phone_numbers.append(fake_phone_number())
+    if phone_numbers:
+        f_contact.phone_numbers = phone_numbers
+
+    if random() > 0.5:
+        f_contact.preffered_locale = fake.locale()
+
+    if random() > 0.5:
+        f_contact.preffered_name = fake.name()
+
+    if random() > 0.5:
+        f_contact.prefix = fake.prefix()
+
+    if random() > 0.5:
+        f_contact.referral_code = fake.uuid4()
+
+    social_accounts: List[contact.SocialAccount] = []
+    for _ in range(randint(0,8)):
+        social_accounts.append(fake_social_account())
+    if social_accounts:
+        f_contact.social_accounts = social_accounts
+
+    if random() > 0.5:
+        f_contact.spouse_name = fake.name()
+
+    if random() > 0.5:
+        f_contact.suffix = fake.suffix()
+
+    if random() > 0.5:
+        f_contact.timezone = fake.timezone()
+
+    if random() > 0.5:
+        f_contact.utm_parameters = fake_utm_parameter()
+
+    if random() > 0.5:
+        f_contact.website = fake.url()
+
+    if with_company:
+        f_contact.company = fake_company()
+
+    if with_custom_fields:
+        custom_fields: List[contact.CustomFieldValue] = []
+        for _ in range(randint(1,2)):
+            custom_fields.append(fake_custom_field_value())
+        f_contact.custom_fields = custom_fields
+
+    f_contact.validate()
+
+    return f_contact

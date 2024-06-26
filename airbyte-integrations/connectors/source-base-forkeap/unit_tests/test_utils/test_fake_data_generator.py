@@ -68,7 +68,7 @@ def test_create_fake_contact():
     assert isinstance(fake_contact, contact.Contact)
 
 def test_create_fake_contact_with_optional_fields():
-    fake_contact = gen.fake_contact(with_company = True, with_custom_field = True)
+    fake_contact = gen.fake_contact(with_company = True, with_custom_fields = True)
     assert isinstance(fake_contact, contact.Contact)
     assert isinstance(fake_contact.company, contact.Company)
     assert len(fake_contact.custom_fields) > 0
