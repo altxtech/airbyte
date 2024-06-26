@@ -1,4 +1,4 @@
-from model.base import Base
+from .base import Base
 from dataclasses import dataclass
 from typing import List, Optional, Any
 from datetime import datetime, date, timezone
@@ -36,7 +36,7 @@ class Address(Base):
             "country": self.country,
             "field": self.field,
             "line1": self.line1,
-            "locality": self.locality,
+"locality": self.locality,
             "postal_code": self.postal_code
         }
 
@@ -137,6 +137,22 @@ class OriginRequest(Base):
         return {"ip_address": self.ip_address}
 
 @dataclass
+class PhoneNumber(Base):
+    extension: Optional[str] = None
+    field: Optional[str] = None
+    number: Optional[str] = None
+    type: Optional[str] = None
+    
+    def validate(self):
+
+        if self.number:
+            if not re.match(r"\+?[0-9]+", self.number):
+                raise ValueError("Invalid phone number")
+
+        if self.field not in ["PHONE_NUMBER_FIELD_UNSPECIFIED", "PHONE1", "PHONE2", "PHONE3", "PHONE4", "PHONE5"]:
+            raise ValueError("Invalid phone number field")
+
+@dataclass
 class SocialAccount:
 
     name: str
@@ -192,7 +208,7 @@ class Contact(Base):
     middle_name: Optional[str] = None
     origin_request: Optional[OriginRequest] = None
     owner_id: Optional[str] = None
-    phone_numbers: Optional[List[str]] = None
+    phone_numbers: Optional[List[PhoneNumber]] = None
     preffered_locale: Optional[str] = None
     preffered_name: Optional[str] = None
     prefix: Optional[str] = None
