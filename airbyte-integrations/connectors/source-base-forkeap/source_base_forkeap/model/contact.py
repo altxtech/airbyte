@@ -250,9 +250,36 @@ class Contact(Base):
 
     def to_dict(self) -> dict:
 
-        d = {}
+        d = {
+                "addresses": [addr.to_dict() for addr in self.addresses] if self.addresses else [],
+                "anniversary_date": self.anniversary_date.isoformat() if self.anniversary_date else None,
+                "birth_date": self.birth_date.isoformat() if self.birth_date else None,
+                "company": self.company.to_dict() if self.company else None,
+                "contact_type": self.contact_type,
+                "custom_fields": [cf.to_dict() for cf in self.custom_fields] if self.custom_fields else [],
+                "email_addresses": [ea.to_dict() for ea in self.email_addresses] if self.email_addresses else [],
+                "family_name": self.family_name,
+                "fax_numbers": [fn.to_dict() for fn in self.fax_numbers] if self.fax_numbers else [],
+                "given_name": self.given_name,
+                "job_title": self.job_title,
+                "lead_source_id": self.lead_source_id,
+                "middle_name": self.middle_name,
+                "origin_request": self.origin_request.to_dict() if self.origin_request else None,
+                "owner_id": self.owner_id,
+                "phone_numbers": [pn.to_dict() for pn in self.phone_numbers] if self.phone_numbers else [],
+                "preffered_locale": self.preffered_locale,
+                "preffered_name": self.preffered_name,
+                "prefix": self.prefix,
+                "referral_code": self.referral_code,
+                "social_accounts": [sa.to_dict() for sa in self.social_accounts] if self.social_accounts else [],
+                "spouse_name": self.spouse_name,
+                "suffix": self.suffix,
+                "timezone": self.timezone,
+                "utm_parameters": self.utm_parameters.to_dict() if self.utm_parameters else None,
+                "website": self.website
+        }
 
-        if self.email_addresses:
-            d["email_addresses"] = [a.to_dict() for a in self.email_addresses]
+        # Remove None values
+        d = {k: v for k, v in d.items() if v}
 
         return d
