@@ -1,6 +1,6 @@
 from source_base_forkeap.model import contact
 from faker import Faker
-from random import  random, choice, randint
+from random import  random, choice, randint, sample
 from typing import Optional, List
 from datetime import date
 
@@ -170,8 +170,11 @@ def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optio
 
     # Contact needs at least one email address
     email_addresses: List[contact.EmailAddress] = []
-    for _ in range(randint(1,3)):
-        email_addresses.append(fake_email_address())
+    # Choose for which field to generate emails for (fields shouldn't be repeated)
+    valid_fields = ["EMAIL1", "EMAIL2", "EMAIL3"]
+    fields = sample(valid_fields, k=randint(1,3))
+    for field in fields:
+        email_addresses.append(fake_email_address(field))
 
     f_contact = contact.Contact(email_addresses = email_addresses)
 
