@@ -119,7 +119,7 @@ class SocialAccount:
 @dataclass
 class UtmParameter:
     keap_source_id: str
-    utm_campaing: Optional[str] = None
+    utm_campaign: Optional[str] = None
     utm_content: Optional[str] = None
     utm_medium: Optional[str] = None
     utm_source: Optional[str] = None
@@ -141,19 +141,23 @@ class Contact(Base):
     fax_numbers: Optional[List[FaxNumber]] = None
     given_name : Optional[str] = None
     job_title: Optional[str] = None
-    lead_source_id: Optional[str] = None
+    leadsource_id: Optional[str] = None
     middle_name: Optional[str] = None
-    origin_request: Optional[OriginRequest] = None
+    origin: Optional[OriginRequest] = None
     owner_id: Optional[str] = None
     phone_numbers: Optional[List[PhoneNumber]] = None
-    preffered_locale: Optional[str] = None
-    preffered_name: Optional[str] = None
+    preferred_locale: Optional[str] = None
+    preferred_name: Optional[str] = None
     prefix: Optional[str] = None
     referral_code: Optional[str] = None
     social_accounts: Optional[List[SocialAccount]] = None
     spouse_name: Optional[str] = None
     suffix: Optional[str] = None
-    timezone: Optional[str] = None
+
+    # Couldn't identify a consistent pattern for which timezones are accepted by the Keap API
+    # So I settled for not working with this field
+    # time_zone: Optional[str] = None
+
     utm_parameters: Optional[UtmParameter] = None
     website: Optional[str] = None
 

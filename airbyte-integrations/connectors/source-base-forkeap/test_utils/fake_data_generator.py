@@ -142,13 +142,10 @@ def fake_social_account(type: Optional[str] = None) -> contact.SocialAccount:
 
 def fake_utm_parameter() -> contact.UtmParameter:
     
-    utm_parameter = contact.UtmParameter()
+    utm_parameter = contact.UtmParameter(keap_source_id=fake.uuid4())
 
     if random() > 0.5:
-        utm_parameter.keap_source_id = fake.uuid4()
-
-    if random() > 0.5:
-        utm_parameter.utm_campaing = fake.word()
+        utm_parameter.utm_campaign = fake.word()
 
     if random() > 0.5:
         utm_parameter.utm_content = fake.word()
@@ -212,13 +209,13 @@ def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optio
         f_contact.job_title = fake.job()
 
     if random() > 0.5:
-        f_contact.lead_source_id = fake.uuid4()
+        f_contact.leadsource_id = fake.uuid4()
 
     if random() > 0.5:
         f_contact.middle_name = fake.last_name()
 
     if random() > 0.5:
-        f_contact.origin_request = fake_origin_request()
+        f_contact.origin = fake_origin_request()
 
     if random() > 0.5:
         f_contact.owner_id = fake.uuid4()
@@ -230,10 +227,10 @@ def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optio
         f_contact.phone_numbers = phone_numbers
 
     if random() > 0.5:
-        f_contact.preffered_locale = fake.locale()
+        f_contact.preferred_locale = fake.locale()
 
     if random() > 0.5:
-        f_contact.preffered_name = fake.name()
+        f_contact.preferred_name = fake.name()
 
     if random() > 0.5:
         f_contact.prefix = fake.prefix()
@@ -252,9 +249,6 @@ def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optio
 
     if random() > 0.5:
         f_contact.suffix = fake.suffix()
-
-    if random() > 0.5:
-        f_contact.timezone = fake.timezone()
 
     if random() > 0.5:
         f_contact.utm_parameters = fake_utm_parameter()

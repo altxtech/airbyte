@@ -78,9 +78,9 @@ def test_complete_contact_to_dict():
             ],
             given_name = "John",
             job_title = "CEO",
-            lead_source_id = "12345",
+            leadsource_id = "12345",
             middle_name = "D",
-            origin_request = OriginRequest(
+            origin = OriginRequest(
                 ip_address = "0.0.0.0",
             ),
             owner_id = "12345",
@@ -91,8 +91,8 @@ def test_complete_contact_to_dict():
                     type = "home"
                 )
             ],
-            preffered_locale = "en_US",
-            preffered_name = "John Doe",
+            preferred_locale = "en_US",
+            preferred_name = "John Doe",
             prefix = "Mr.",
             referral_code = "12345",
             social_accounts = [
@@ -103,10 +103,9 @@ def test_complete_contact_to_dict():
             ],
             spouse_name = "Jane",
             suffix = "Jr.",
-            timezone = "America/New_York",
             utm_parameters = UtmParameter(
                     keap_source_id = "12345",
-                    utm_campaing = "test",
+                    utm_campaign = "test",
                     utm_content = "test",
                     utm_medium = "test",
                     utm_source = "test",
@@ -166,9 +165,9 @@ def test_complete_contact_to_dict():
             ],
             "given_name": "John",
             "job_title": "CEO",
-            "lead_source_id": "12345",
+            "leadsource_id": "12345",
             "middle_name": "D",
-            "origin_request": {
+            "origin": {
                 "ip_address": "0.0.0.0"
             },
             "owner_id": "12345",
@@ -180,8 +179,8 @@ def test_complete_contact_to_dict():
                     "type": "home"
                 }
             ],
-            "preffered_locale": "en_US",
-            "preffered_name": "John Doe",
+            "preferred_locale": "en_US",
+            "preferred_name": "John Doe",
             "prefix": "Mr.",
             "referral_code": "12345",
             "social_accounts": [
@@ -192,10 +191,9 @@ def test_complete_contact_to_dict():
             ],
             "spouse_name": "Jane",
             "suffix": "Jr.",
-            "timezone": "America/New_York",
             "utm_parameters": {
                 "keap_source_id": "12345",
-                "utm_campaing": "test",
+                "utm_campaign": "test",
                 "utm_content": "test",
                 "utm_medium": "test",
                 "utm_source": "test",
