@@ -7,7 +7,10 @@ from source_base_forkeap.model.contact import (
         Address,
         EmailAddress,
         FaxNumber,
-        OriginRequest
+        PhoneNumber,
+        SocialAccount,
+        OriginRequest,
+        UtmParameter
 )
 from datetime import date
 
@@ -33,12 +36,13 @@ def test_complete_contact_to_dict():
     contact = Contact(
             addresses = [
                 Address(
-                    line1 = "123 Main St",
-                    line2 = "Apt 1",
+                    country = "United States of America",
                     field = "BILLING",
+                    line1 = "123 Main St",
                     locality = "Anytown",
                     postal_code = "12345",
-                    country = "USA"
+                    line2 = "Apt 1",
+                    country_code = "USA"
                 )
             ],
             anniversary_date = date(2020, 1, 1),
@@ -80,29 +84,55 @@ def test_complete_contact_to_dict():
                 ip_address = "0.0.0.0",
             ),
             owner_id = "12345",
+            phone_numbers= [
+                PhoneNumber(
+                    field = "PHONE1",
+                    number = "123-456-7890",
+                    type = "home"
+                )
+            ],
             preffered_locale = "en_US",
             preffered_name = "John Doe",
             prefix = "Mr.",
             referral_code = "12345",
+            social_accounts = [
+                SocialAccount(
+                    name = "John Doe",
+                    type = "FACEBOOK"
+                )
+            ],
             spouse_name = "Jane",
             suffix = "Jr.",
             timezone = "America/New_York",
+            utm_parameters = UtmParameter(
+                    keap_source_id = "12345",
+                    utm_campaing = "test",
+                    utm_content = "test",
+                    utm_medium = "test",
+                    utm_source = "test",
+                    utm_term = "test"
+            ), 
             website = "https://example.com"
     )
 
     expect = {
             "addresses": [
                 {
-                    "line1": "123 Main St",
-                    "line2": "Apt 1",
+                    "country": "United States of America",
                     "field": "BILLING",
+                    "line1": "123 Main St",
                     "locality": "Anytown",
                     "postal_code": "12345",
-                    "country": "USA"
+                    "line2": "Apt 1",
+                    "country_code": "USA",
+                    "region": None,
+                    "region_code": None,
+                    "zip_code": None,
+                    "zip_four": None
                 }
             ],
-            "anniversary_date": "2020-01-01",
-            "birth_date": "1990-01-01",
+            "anniversary_date": date(2020, 1, 1),
+            "birth_date": date(1990, 1, 1), 
             "company": {
                 "company_name": "Test Company",
                 "id": "12345"
@@ -117,11 +147,13 @@ def test_complete_contact_to_dict():
             "email_addresses": [
                 {
                     "field": "EMAIL1",
-                    "email": "john.doe@example.com"
+                    "email": "john.doe@example.com",
+                    "opt_in_reason": None
                 },
                 {
                     "field": "EMAIL2",
-                    "email": "john.doe1@example.com"
+                    "email": "john.doe1@example.com",
+                    "opt_in_reason": None
                 }
             ],
             "family_name": "Doe",
@@ -140,13 +172,35 @@ def test_complete_contact_to_dict():
                 "ip_address": "0.0.0.0"
             },
             "owner_id": "12345",
+            "phone_numbers": [
+                {
+                    "extension": None,
+                    "field": "PHONE1",
+                    "number": "123-456-7890",
+                    "type": "home"
+                }
+            ],
             "preffered_locale": "en_US",
             "preffered_name": "John Doe",
             "prefix": "Mr.",
             "referral_code": "12345",
+            "social_accounts": [
+                {
+                    "name": "John Doe",
+                    "type": "FACEBOOK"
+                }
+            ],
             "spouse_name": "Jane",
             "suffix": "Jr.",
             "timezone": "America/New_York",
+            "utm_parameters": {
+                "keap_source_id": "12345",
+                "utm_campaing": "test",
+                "utm_content": "test",
+                "utm_medium": "test",
+                "utm_source": "test",
+                "utm_term": "test"
+            },
             "website": "https://example.com"
     }
 

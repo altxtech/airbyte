@@ -30,36 +30,6 @@ class Address(Base):
         if self.region and not self.country_code:
             raise ValidationError("Country code is required when region is specified", "contry_code")
 
-    def to_dict(self) -> dict:
-
-        d = {
-            "country": self.country,
-            "field": self.field,
-            "line1": self.line1,
-"locality": self.locality,
-            "postal_code": self.postal_code
-        }
-
-        if self.line2:
-            d["line2"] = self.line2
-
-        if self.country_code:
-            d["country_code"] = self.country_code
-
-        if self.region:
-            d["region"] = self.region
-
-        if self.region_code:
-            d["region_code"] = self.region_code
-
-        if self.zip_code:
-            d["zip_code"] = self.zip_code
-
-        if self.zip_four:
-            d["zip_four"] = self.zip_four
-
-        return d
-
 @dataclass
 class Company(Base):
     id: str
@@ -69,12 +39,6 @@ class Company(Base):
         if not self.id:
             raise ValidationError("Company ID is required", "id")
 
-    def to_dict(self) -> dict:
-        d = {"id": self.id}
-        if self.company_name:
-            d["company_name"] = self.company_name
-        return d
-    
 @dataclass
 class FaxNumber(Base):
     field: str
@@ -89,9 +53,6 @@ class FaxNumber(Base):
         if not re.match(r"\+?[0-9]+", self.number):
             raise ValidationError("Invalid fax number", "number")
 
-    def to_dict(self) -> dict:
-        return {"field": self.field, "number": self.number, "type": self.type}
-
 @dataclass
 class CustomFieldValue(Base):
     id: str
@@ -99,9 +60,6 @@ class CustomFieldValue(Base):
 
     def validate(self):
         pass
-
-    def to_dict(self) -> dict:
-        return {"id": self.id, "content": self.content}
 
 @dataclass
 class EmailAddress(Base):
@@ -119,12 +77,6 @@ class EmailAddress(Base):
         if self.field not in ["EMAIL1", "EMAIL2", "EMAIL3"]:
             raise ValidationError(f"Invalid email field", "field")
 
-    def to_dict(self) -> dict:
-        d = {"email": self.email, "field": self.field}
-        if self.opt_in_reason:
-            d["opt_in_reason"] = self.opt_in_reason
-        return d
-
 @dataclass
 class OriginRequest(Base):
     ip_address: str
@@ -137,9 +89,6 @@ class OriginRequest(Base):
         if not re.match(ipv4_re, self.ip_address):
             if not re.match(ipv6_re, self.ip_address):
                 raise ValidationError("Invalid IP address", "ip_address")
-
-    def to_dict(self) -> dict:
-        return {"ip_address": self.ip_address}
 
 @dataclass
 class PhoneNumber(Base):
@@ -157,14 +106,6 @@ class PhoneNumber(Base):
         if self.field not in ["PHONE_NUMBER_FIELD_UNSPECIFIED", "PHONE1", "PHONE2", "PHONE3", "PHONE4", "PHONE5"]:
             raise ValidationError("Invalid phone number field", "field")
 
-    def to_dict(self) -> dict:
-        return {
-                "extension": self.extension,
-                "field": self.field,
-                "number": self.number,
-                "type": self.type
-        }
-
 @dataclass
 class SocialAccount:
 
@@ -175,9 +116,7 @@ class SocialAccount:
         if self.type not in ["SOCIAL_ACCOUNT_TYPE_UNSPECIFIED", "FACEBOOK", "LINKED_IN", "TWITTER", "INSTAGRAM", "SNAPCHAT", "YOUTUBE", "PINTEREST"]:
             raise ValidationError("Invalid social account type", "type")
 
-    def to_dict(self) -> dict:
-        return {"name": self.name, "type": self.type}
-
+@dataclass
 class UtmParameter:
     keap_source_id: str
     utm_campaing: Optional[str] = None
@@ -188,21 +127,6 @@ class UtmParameter:
 
     def validate(self):
         pass
-
-    def to_dict(self) -> dict:
-        d = {"keap_source_id": self.keap_source_id}
-        if self.utm_campaing:
-            d["utm_campaing"] = self.utm_campaing
-        if self.utm_content:
-            d["utm_content"] = self.utm_content
-        if self.utm_medium:
-            d["utm_medium"] = self.utm_medium
-        if self.utm_source:
-            d["utm_source"] = self.utm_source
-        if self.utm_term:
-            d["utm_term"] = self.utm_term
-
-        return d
 
 @dataclass
 class Contact(Base):
@@ -247,39 +171,3 @@ class Contact(Base):
             if email.field in fields:
                 raise ValidationError(f"Email field '{email.field}' is repeated", "email_addresses")
             fields[email.field] = True
-
-    def to_dict(self) -> dict:
-
-        d = {
-                "addresses": [addr.to_dict() for addr in self.addresses] if self.addresses else [],
-                "anniversary_date": self.anniversary_date.isoformat() if self.anniversary_date else None,
-                "birth_date": self.birth_date.isoformat() if self.birth_date else None,
-                "company": self.company.to_dict() if self.company else None,
-                "contact_type": self.contact_type,
-                "custom_fields": [cf.to_dict() for cf in self.custom_fields] if self.custom_fields else [],
-                "email_addresses": [ea.to_dict() for ea in self.email_addresses] if self.email_addresses else [],
-                "family_name": self.family_name,
-                "fax_numbers": [fn.to_dict() for fn in self.fax_numbers] if self.fax_numbers else [],
-                "given_name": self.given_name,
-                "job_title": self.job_title,
-                "lead_source_id": self.lead_source_id,
-                "middle_name": self.middle_name,
-                "origin_request": self.origin_request.to_dict() if self.origin_request else None,
-                "owner_id": self.owner_id,
-                "phone_numbers": [pn.to_dict() for pn in self.phone_numbers] if self.phone_numbers else [],
-                "preffered_locale": self.preffered_locale,
-                "preffered_name": self.preffered_name,
-                "prefix": self.prefix,
-                "referral_code": self.referral_code,
-                "social_accounts": [sa.to_dict() for sa in self.social_accounts] if self.social_accounts else [],
-                "spouse_name": self.spouse_name,
-                "suffix": self.suffix,
-                "timezone": self.timezone,
-                "utm_parameters": self.utm_parameters.to_dict() if self.utm_parameters else None,
-                "website": self.website
-        }
-
-        # Remove None values
-        d = {k: v for k, v in d.items() if v}
-
-        return d
