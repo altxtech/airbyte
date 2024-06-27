@@ -1,4 +1,5 @@
 from .base import Base
+from .exceptions import ValidationError
 from dataclasses import dataclass
 from typing import List, Optional, Any
 from datetime import datetime, date, timezone
@@ -27,7 +28,7 @@ class Address(Base):
     def validate(self):
         # If region is specified, country_code is required
         if self.region and not self.country_code:
-            raise ValueError("Country code is required when region is specified")
+            raise ValidationError("Country code is required when region is specified", "contry_code")
 
     def to_dict(self) -> dict:
 
@@ -66,7 +67,7 @@ class Company(Base):
 
     def validate(self):
         if not self.id:
-            raise ValueError("Company ID is required")
+            raise ValidationError("Company ID is required", "id")
 
     def to_dict(self) -> dict:
         d = {"id": self.id}
@@ -83,10 +84,10 @@ class FaxNumber(Base):
     def validate(self):
 
         if self.field not in ["FAX1", "FAX2", "FAX_NUMBER_FIELD_UNSPECIFIED"]:
-            raise ValueError(f"Invalid fax number type")
+            raise ValidationError("Invalid fax number field", "field")
 
         if not re.match(r"\+?[0-9]+", self.number):
-            raise ValueError("Invalid fax number")
+            raise ValidationError("Invalid fax number", "number")
 
     def to_dict(self) -> dict:
         return {"field": self.field, "number": self.number, "type": self.type}
@@ -110,13 +111,13 @@ class EmailAddress(Base):
 
     def validate(self):
         if not self.email:
-            raise ValueError("Email address is required")
+            raise ValidationError("Email address is required", "email")
 
         if not re.match(r"[^@]+@[^@]+\.[^@]+", self.email):
-            raise ValueError("Invalid email address")
+            raise ValidationError("Invalid email address", "email")
 
         if self.field not in ["EMAIL1", "EMAIL2", "EMAIL3"]:
-            raise ValueError(f"Invalid email field")
+            raise ValidationError(f"Invalid email field", "field")
 
     def to_dict(self) -> dict:
         d = {"email": self.email, "field": self.field}
@@ -135,7 +136,7 @@ class OriginRequest(Base):
 
         if not re.match(ipv4_re, self.ip_address):
             if not re.match(ipv6_re, self.ip_address):
-                raise ValueError("Invalid IP address")
+                raise ValidationError("Invalid IP address", "ip_address")
 
     def to_dict(self) -> dict:
         return {"ip_address": self.ip_address}
@@ -151,10 +152,10 @@ class PhoneNumber(Base):
 
         if self.number:
             if not re.match(r"\+?[0-9]+", self.number):
-                raise ValueError("Invalid phone number")
+                raise ValidationError("Invalid phone number", "number")
 
         if self.field not in ["PHONE_NUMBER_FIELD_UNSPECIFIED", "PHONE1", "PHONE2", "PHONE3", "PHONE4", "PHONE5"]:
-            raise ValueError("Invalid phone number field")
+            raise ValidationError("Invalid phone number field", "field")
 
     def to_dict(self) -> dict:
         return {
@@ -172,7 +173,7 @@ class SocialAccount:
 
     def validate(self):
         if self.type not in ["SOCIAL_ACCOUNT_TYPE_UNSPECIFIED", "FACEBOOK", "LINKED_IN", "TWITTER", "INSTAGRAM", "SNAPCHAT", "YOUTUBE", "PINTEREST"]:
-            raise ValueError("Invalid social account type")
+            raise ValidationError("Invalid social account type", "type")
 
     def to_dict(self) -> dict:
         return {"name": self.name, "type": self.type}
@@ -238,7 +239,14 @@ class Contact(Base):
 
         # At least one email address
         if not self.email_addresses:
-            raise ValueError("At least one email address is required")
+            raise ValidationError("At least one email address is required", "email_addresses")
+
+        # Email addresses fields should not be repeated
+        fields = {}
+        for email in self.email_addresses:
+            if email.field in fields:
+                raise ValidationError(f"Email field '{email.field}' is repeated", "email_addresses")
+            fields[email.field] = True
 
     def to_dict(self) -> dict:
 

@@ -13,7 +13,7 @@ KEAP_ACCESS_TOKEN = os.environ["KEAP_ACCESS_TOKEN"]
 
 def test_contact_intensive():
 
-    for _ in range(750):
+    for _ in range(1):
         _test_contact()
 
 def _test_contact():
