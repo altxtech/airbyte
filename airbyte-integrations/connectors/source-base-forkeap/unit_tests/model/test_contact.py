@@ -29,6 +29,49 @@ def test_email_address_repeated_field():
     assert exc_info.value.message == "Email field 'EMAIL1' is repeated"
     assert exc_info.value.field == "email_addresses"
 
+def test_phone_number_repeated_field():
+
+    # Phone numbers should have unique "field"
+    phones = [
+            PhoneNumber(field="PHONE1", number="123-456-7890", type="home"),
+            PhoneNumber(field="PHONE1", number="123-456-7890", type="home")
+    ]
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(phone_numbers=phones)
+
+    assert exc_info.value.message == "Phone field 'PHONE1' is repeated"
+    assert exc_info.value.field == "phone_numbers"
+
+def test_basic_contact():
+    Contact(
+            email_addresses=[
+                EmailAddress(field="EMAIL1", email="test@example.com")
+            ]
+    )
+
+def test_invalid_prefix():
+    # Valid prefixes are 'Mr.', 'Mrs.', 'Ms.' and "Dr."
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(
+                email_addresses=[
+                    EmailAddress(field="EMAIL1", email="test@example.com")
+                ],
+                prefix="Invalid."
+        )
+    assert exc_info.value.field == "prefix"
+
+def test_invalid_suffix():
+    # Valid suffixes are "Jr", "PhD", "I", "II", "III", "IV", and "V"
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(
+                email_addresses=[
+                    EmailAddress(field="EMAIL1", email="test@example.com")
+                ],
+                suffix="Invalid"
+        )
+    assert exc_info.value.field == "suffix"
+
+
 def test_complete_contact_to_dict():
 
     # Tests the dict conversion of a complete contact object
