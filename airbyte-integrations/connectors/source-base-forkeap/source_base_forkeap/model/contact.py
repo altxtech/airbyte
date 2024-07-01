@@ -43,7 +43,7 @@ class Company(Base):
 class FaxNumber(Base):
     field: str
     number: str
-    type: str
+    type: Optional[str]
 
     def validate(self):
 
