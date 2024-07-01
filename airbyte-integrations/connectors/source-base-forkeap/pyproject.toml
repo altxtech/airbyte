@@ -17,6 +17,7 @@ packages = [ { include = "source_base_forkeap" }, {include = "main.py" } ]
 [tool.poetry.dependencies]
 python = "^3.9,<3.12"
 airbyte-cdk = "^0"
+pycountry = "^24.6.1"
 
 [tool.poetry.scripts]
 source-base-forkeap = "source_base_forkeap.run:run"

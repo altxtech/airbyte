@@ -167,7 +167,6 @@ def test_complete_contact_to_dict():
                     type = "home"
                 )
             ],
-            preferred_locale = "en_US",
             preferred_name = "John Doe",
             prefix = "Mr.",
             referral_code = "12345",
@@ -255,7 +254,6 @@ def test_complete_contact_to_dict():
                     "type": "home"
                 }
             ],
-            "preferred_locale": "en_US",
             "preferred_name": "John Doe",
             "prefix": "Mr.",
             "referral_code": "12345",
