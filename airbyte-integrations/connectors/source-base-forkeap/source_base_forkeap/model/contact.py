@@ -13,13 +13,13 @@ This right here is cool to do, but it's very easy to endup overegineering this
 
 @dataclass
 class Address(Base):
-    country: str
     field: str
-    line1: str
-    locality: str
-    postal_code: str
+    country_code: str
+    line1: Optional[str] = None
+    locality: Optional[str] = None
+    postal_code: Optional[str] = None
+    country: Optional[str] = None
     line2: Optional[str] = None
-    country_code: Optional[str] = None
     region: Optional[str] = None
     region_code: Optional[str] = None
     zip_code: Optional[str] = None
@@ -29,7 +29,6 @@ class Address(Base):
         # If region is specified, country_code is required
         if self.region and not self.country_code:
             raise ValidationError("Country code is required when region is specified", "contry_code")
-
 @dataclass
 class Company(Base):
     id: str
@@ -146,7 +145,10 @@ class Contact(Base):
     origin: Optional[OriginRequest] = None
     owner_id: Optional[str] = None
     phone_numbers: Optional[List[PhoneNumber]] = None
-    preferred_locale: Optional[str] = None
+
+    # too hard to validate
+    # preferred_locale: Optional[str] = None -> 
+
     preferred_name: Optional[str] = None
     prefix: Optional[str] = None
     referral_code: Optional[str] = None
@@ -154,8 +156,7 @@ class Contact(Base):
     spouse_name: Optional[str] = None
     suffix: Optional[str] = None
 
-    # Couldn't identify a consistent pattern for which timezones are accepted by the Keap API
-    # So I settled for not working with this field
+    # too hard to validate
     # time_zone: Optional[str] = None
 
     utm_parameters: Optional[UtmParameter] = None
