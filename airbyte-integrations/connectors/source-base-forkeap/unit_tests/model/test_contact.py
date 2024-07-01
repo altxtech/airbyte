@@ -14,6 +14,8 @@ from source_base_forkeap.model.contact import (
 )
 from datetime import date
 
+
+
 def test_email_address_repeated_field():
     
     # Emails should have unique "field" 
@@ -70,6 +72,37 @@ def test_invalid_suffix():
                 suffix="Invalid"
         )
     assert exc_info.value.field == "suffix"
+
+
+def test_valid_contact_types():
+
+    valid_contact_types = [None, "Lead", "Customer", "Other"]
+    emails = [EmailAddress(field="EMAIL1", email="test@example.com")]
+
+    for t in valid_contact_types:
+        Contact(email_addresses=emails, contact_type=t)
+
+def test_invalid_contact_type():
+
+    emails = [EmailAddress(field="EMAIL1", email="test@example.com")]
+
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(email_addresses=emails, contact_type="foo")
+    assert exc_info.value.field == "contactact_type"
+
+def test_invalid_website1():
+    emails = [EmailAddress(field="EMAIL1", email="test@example.com")]
+
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(email_addresses=emails, website="foo")
+    assert exc_info.value.field == "website"
+
+def test_invalid_website2():
+    emails = [EmailAddress(field="EMAIL1", email="test@example.com")]
+
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(email_addresses=emails, website="example.com") # No protocol
+    assert exc_info.value.field == "website"
 
 
 def test_complete_contact_to_dict():
