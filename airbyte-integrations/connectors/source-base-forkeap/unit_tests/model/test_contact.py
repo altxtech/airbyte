@@ -53,6 +53,17 @@ def test_fax_number_repeated_field():
 
     assert exc_info.value.field == "fax_numbers"
 
+def test_address_repeated_field():
+
+    addresses = [
+            Address(field="BILLING", country_code="USA"),
+            Address(field="BILLING", country_code="USA")
+    ]
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(email_addresses=[EmailAddress(field="EMAIL1", email="test1@example.com")], addresses=faxes)
+
+    assert exc_info.value.field == "addresses"
+
 def test_social_account_repeated_type():
 
     accs = [
