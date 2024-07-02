@@ -191,9 +191,13 @@ def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optio
     f_contact = contact.Contact(email_addresses = email_addresses)
 
     # Addresses
+    valid_fields = ["BILLING", "SHIPPING", "OTHER"]
+    fields = sample(valid_fields, randint(0,2))
     addresses: List[contact.Address] = []
-    for _ in range(randint(0,4)):
-        addresses.append(fake_address())
+    if fields:
+        for field in fields:
+            addresses.append(fake_address(field=field))
+        f_contact.addresses = addresses
 
     if addresses:
         f_contact.addresses = addresses
