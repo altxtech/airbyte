@@ -132,6 +132,22 @@ def test_invalid_contact_type():
         Contact(email_addresses=emails, contact_type="foo")
     assert exc_info.value.field == "contact_type"
 
+def test_invalid_owner_id():
+
+    emails = [EmailAddress(field="EMAIL1", email="test@example.com")]
+
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(email_addresses=emails, owner_id="foo")
+    assert exc_info.value.field == "owner_id"
+
+def test_invalid_leadsource_id():
+
+    emails = [EmailAddress(field="EMAIL1", email="test@example.com")]
+
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(email_addresses=emails, leadsource_id="foo")
+    assert exc_info.value.field == "leadsource_id"
+
 def test_invalid_website1():
     emails = [EmailAddress(field="EMAIL1", email="test@example.com")]
 
