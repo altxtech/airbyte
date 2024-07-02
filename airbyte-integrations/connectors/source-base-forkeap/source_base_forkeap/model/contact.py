@@ -159,7 +159,7 @@ class SocialAccount(Base):
         if self.type not in ["FACEBOOK", "LINKED_IN", "TWITTER", "INSTAGRAM", "SNAPCHAT", "YOUTUBE", "PINTEREST"]:
             raise ValidationError("Invalid social account type", "type")
 
-        url_re = r"https?:\/\/\w+(\.\w+)+"
+        url_re = r"https?:\/\/[\w-]+(\.[\w-]+)+(\/[\w-]+)?\/?"
         if not re.match(url_re, self.name):
             raise ValidationError(f"{self.name} is not a valid url", "name")
 
@@ -247,6 +247,14 @@ class Contact(Base):
                     raise ValidationError(f"Fax field '{acc.type}' is repeated", "social_accounts")
                 fields[acc.type] = True
 
+        if self.leadsource_id:
+            if not re.match(r"\d+", self.leadsource_id):
+                raise ValidationError("leadsource_id should be a numeric string", "leadsource_id")
+
+        if self.owner_id:
+            if not re.match(r"\d+", self.owner_id):
+                raise ValidationError("owner_id should be a numeric string", "owner_id")
+
         # Prefixes
         if self.prefix:
             valid_prefixes = ['Mr.', 'Mrs.', 'Ms.', "Dr."]
@@ -266,7 +274,7 @@ class Contact(Base):
 
         # Website
         if self.website:
-            url_re = r"https?:\/\/\w+(\.\w+)+"
+            url_re = r"https?:\/\/[\w-]+(\.[\w-]+)+(\/[\w-]+)?\/?"
             if not re.match(url_re, self.website):
                 raise ValidationError(f"{self.website} is not a valid url", "website")
 
