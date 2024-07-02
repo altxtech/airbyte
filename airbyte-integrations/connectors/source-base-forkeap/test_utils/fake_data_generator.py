@@ -3,33 +3,42 @@ from faker import Faker
 from random import  random, choice, randint, sample
 from typing import Optional, List
 from datetime import date
+import pycountry
 
 fake = Faker()
+MAX_ID = 2**64//2-1
 
 def fake_address(field: Optional[str] = None) -> contact.Address:
 
     if not field:
-        field = choice(["ADDRESS_FIELD_UNSPECIFIED", "BILLING", "SHIPPING", "OTHER"])
+        field = choice(["BILLING", "SHIPPING", "OTHER"])
     
-    # Required fields
+    country = choice(list(pycountry.countries))
+
     address = contact.Address(
-        country=fake.country(),
-        field=field,
-        line1=fake.street_address(),
-        locality=fake.city(),
-        postal_code=fake.postcode()
+        field = field, 
+        country_code = country.alpha_3
     )
 
-    # Optional fields
+    # Country
+    if random() > 0.5:
+        address.country = fake.country()
+
+    # Line 1
+    if random() > 0.5:
+        address.line1 = fake.address()
+
+    # city
+    if random() > 0.5:
+        address.locality = fake.city()
+
+    # Postal code
+    if random() > 0.5:
+        address.postal_code = fake.postcode()
+
     # Line 2
     if  random() > 0.5:
         address.line2 = fake.secondary_address()
-    # Country code
-    if random() > 0.5:
-        address.country_code = fake.country_code()
-        # Region
-
-    # TODO: Region and region_code (ISO 3166-2)
 
     # Zip code
     if random() > 0.5:
@@ -45,7 +54,7 @@ def fake_address(field: Optional[str] = None) -> contact.Address:
 # Fake Company
 def fake_company() -> contact.Company:
     company = contact.Company(
-        id=fake.uuid4()
+        id=str(randint(0,MAX_ID))
     )
 
     # Optional fields
@@ -59,14 +68,17 @@ def fake_company() -> contact.Company:
 def fake_fax_number(field: Optional[str] = None) -> contact.FaxNumber:
 
     if not field:
-        field = choice(["FAX_NUMBER_FIELD_UNSPECIFIED", "FAX1", "FAX2"])
+        field = choice(["FAX1", "FAX2"])
     
     # Required fields
     fax_number = contact.FaxNumber(
         field=field,
-        number=fake.msisdn(),
-        type=fake.word()
+        number=fake.phone_number(),
     )
+
+    # Optional fields
+    if random() > 0.5:
+        fax_number.type = choice(["Work", "Home", "Other"])
 
     fax_number.validate()
 
@@ -74,7 +86,7 @@ def fake_fax_number(field: Optional[str] = None) -> contact.FaxNumber:
 
 def fake_custom_field_value() -> contact.CustomFieldValue:
     custom_field_value = contact.CustomFieldValue(
-        id=fake.uuid4(),
+        id=str(randint(0,MAX_ID)),
         content=fake.word()
     )
 
@@ -112,14 +124,17 @@ def fake_origin_request() -> contact.OriginRequest:
 def fake_phone_number(field: Optional[str] = None) -> contact.PhoneNumber:
 
     if not field:
-        field = choice(["PHONE_NUMBER_FIELD_UNSPECIFIED", "PHONE1", "PHONE2", "PHONE3", "PHONE4", "PHONE5"])
+        field = choice(["PHONE1", "PHONE2", "PHONE3", "PHONE4", "PHONE5"])
     
     # Required fields
     phone_number = contact.PhoneNumber(
         field=field,
-        number=fake.msisdn(),
-        type=fake.word()
+        number=fake.phone_number(),
     )
+    
+    # Optional fields
+    if random() > 0.5:
+        phone_number.type = choice(["Work", "Home", "Mobile", "Other"])
 
     phone_number.validate()
 
@@ -128,13 +143,13 @@ def fake_phone_number(field: Optional[str] = None) -> contact.PhoneNumber:
 def fake_social_account(type: Optional[str] = None) -> contact.SocialAccount:
 
     if not type:
-        type = choice(["SOCIAL_ACCOUNT_TYPE_UNSPECIFIED", "FACEBOOK", "LINKED_IN", "TWITTER", "INSTAGRAM", "SNAPCHAT", "YOUTUBE",
+        type = choice(["FACEBOOK", "LINKED_IN", "TWITTER", "INSTAGRAM", "SNAPCHAT", "YOUTUBE",
                        "PINTEREST"])
 
     social_account = contact.SocialAccount(
-            name = fake.word(),
-            type = type
-            )
+        name = fake.url() + fake.uri_path(),
+        type = type
+    )
 
     social_account.validate()
 
@@ -190,14 +205,18 @@ def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optio
         f_contact.birth_date = date.fromisoformat(fake.date())
 
     if random() > 0.5:
-        f_contact.contact_type = fake.word()
+        f_contact.contact_type = choice(["Lead", "Customer", "Other"])
 
     if random() > 0.5:
         f_contact.family_name =  fake.last_name()
 
+    valid_fields = ["FAX1", "FAX2"]
+    fields = sample(valid_fields, randint(0,2))
     fax_numbers: List[contact.FaxNumber] = []
-    for _ in range(randint(0,3)):
-        fax_numbers.append(fake_fax_number())
+    if fields:
+        for field in fields:
+            fax_numbers.append(fake_fax_number(field=field))
+        f_contact.fax_numbers = fax_numbers
 
     if fax_numbers:
         f_contact.fax_numbers = fax_numbers
@@ -209,7 +228,7 @@ def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optio
         f_contact.job_title = fake.job()
 
     if random() > 0.5:
-        f_contact.leadsource_id = fake.uuid4()
+        f_contact.leadsource_id = str(randint(0, MAX_ID))
 
     if random() > 0.5:
         f_contact.middle_name = fake.last_name()
@@ -218,37 +237,38 @@ def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optio
         f_contact.origin = fake_origin_request()
 
     if random() > 0.5:
-        f_contact.owner_id = fake.uuid4()
+        f_contact.owner_id = str(randint(0, MAX_ID))
 
+    valid_fields = ["PHONE1", "PHONE2", "PHONE3", "PHONE4", "PHONE5"]
+    fields = sample(valid_fields, randint(0,5))
     phone_numbers: List[contact.PhoneNumber] = []
-    for _ in range(randint(0,6)):
-        phone_numbers.append(fake_phone_number())
-    if phone_numbers:
+    if fields:
+        for field in fields:
+            phone_numbers.append(fake_phone_number(field=field))
         f_contact.phone_numbers = phone_numbers
-
-    if random() > 0.5:
-        f_contact.preferred_locale = fake.locale()
 
     if random() > 0.5:
         f_contact.preferred_name = fake.name()
 
     if random() > 0.5:
-        f_contact.prefix = fake.prefix()
+        f_contact.prefix = choice(['Mr.', 'Mrs.', 'Ms.', "Dr."])
 
     if random() > 0.5:
         f_contact.referral_code = fake.uuid4()
 
+    valid_types = ["FACEBOOK", "LINKED_IN", "TWITTER", "INSTAGRAM", "SNAPCHAT", "YOUTUBE", "PINTEREST"]
+    types = sample(valid_types, randint(0,7))
     social_accounts: List[contact.SocialAccount] = []
-    for _ in range(randint(0,8)):
-        social_accounts.append(fake_social_account())
-    if social_accounts:
+    if types:
+        for type in types:
+            social_accounts.append(fake_social_account(type=type))
         f_contact.social_accounts = social_accounts
 
     if random() > 0.5:
         f_contact.spouse_name = fake.name()
 
     if random() > 0.5:
-        f_contact.suffix = fake.suffix()
+        f_contact.suffix = choice(["Jr", "PhD", "I", "II", "III", "IV", "V"])
 
     if random() > 0.5:
         f_contact.utm_parameters = fake_utm_parameter()
