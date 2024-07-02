@@ -240,6 +240,13 @@ class Contact(Base):
                     raise ValidationError(f"Fax field '{number.field}' is repeated", "fax_numbers")
                 fields[number.field] = True
 
+        if self.addresses:
+            fields = {}
+            for addr in self.addresses:
+                if addr.field in fields:
+                    raise ValidationError(f"Address field '{addr.field}' is repeated", "addresses")
+                fields[addr.field] = True
+
         if self.social_accounts:
             fields = {}
             for acc in self.social_accounts:
