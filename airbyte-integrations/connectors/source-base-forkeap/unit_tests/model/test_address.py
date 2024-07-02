@@ -38,6 +38,6 @@ def test_invalid_region_code():
     with pytest.raises(ValidationError) as exc_info:
         # There are both valid ISO country and region codes, but US-AZ is not a region of BRA
         Address(field = "BILLING", country_code="BRA", region_code="US-AZ")
-    assert exc_info.value.field == "country_code"
+    assert exc_info.value.field == "region_code"
 
 # There is a lot of crazy validation I could do on address, but I'll keep things simple for now

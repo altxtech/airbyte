@@ -27,9 +27,9 @@ def test_invalid_type2():
 def test_invalid_name1():
     with pytest.raises(ValidationError) as exc_info:
         SocialAccount(type="LINKED_IN", name="foo")
-    assert exc_info.value.field == "type"
+    assert exc_info.value.field == "name"
 
 def test_invalid_name2():
     with pytest.raises(ValidationError) as exc_info:
         SocialAccount(type="LINKED_IN", name="example.com") # No protocol
-    assert exc_info.value.field == "type"
+    assert exc_info.value.field == "name"

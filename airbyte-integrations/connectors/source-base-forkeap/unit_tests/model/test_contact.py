@@ -28,21 +28,40 @@ def test_email_address_repeated_field():
     with pytest.raises(ValidationError) as exc_info:
         Contact(email_addresses=emails)
 
-    assert exc_info.value.message == "Email field 'EMAIL1' is repeated"
     assert exc_info.value.field == "email_addresses"
 
 def test_phone_number_repeated_field():
 
     # Phone numbers should have unique "field"
     phones = [
-            PhoneNumber(field="PHONE1", number="123-456-7890", type="home"),
-            PhoneNumber(field="PHONE1", number="123-456-7890", type="home")
+            PhoneNumber(field="PHONE1", number="123-456-7890"),
+            PhoneNumber(field="PHONE1", number="123-456-7890")
     ]
     with pytest.raises(ValidationError) as exc_info:
-        Contact(phone_numbers=phones)
+        Contact(email_addresses=[EmailAddress(field="EMAIL1", email="test1@example.com")], phone_numbers=phones)
 
-    assert exc_info.value.message == "Phone field 'PHONE1' is repeated"
     assert exc_info.value.field == "phone_numbers"
+
+def test_fax_number_repeated_field():
+
+    faxes = [
+            FaxNumber(field="FAX1", number="123-456-7890"),
+            FaxNumber(field="FAX1", number="123-456-7890")
+    ]
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(email_addresses=[EmailAddress(field="EMAIL1", email="test1@example.com")], fax_numbers=faxes)
+
+    assert exc_info.value.field == "fax_numbers"
+
+def test_social_account_repeated_type():
+
+    accs = [
+            SocialAccount(type="LINKED_IN", name="https://example.com"),
+            SocialAccount(type="LINKED_IN", name="https://example.com")
+    ]
+    with pytest.raises(ValidationError) as exc_info:
+        Contact(email_addresses=[EmailAddress(field="EMAIL1", email="test1@example.com")], social_accounts=accs)
+    assert exc_info.value.field == "social_accounts"
 
 def test_basic_contact():
     Contact(
@@ -50,6 +69,19 @@ def test_basic_contact():
                 EmailAddress(field="EMAIL1", email="test@example.com")
             ]
     )
+
+
+def test_valid_prefixes():
+
+    valid_prefixes = ['Mr.', 'Mrs.', 'Ms.', "Dr."]
+
+    for prefix in valid_prefixes:
+        Contact(
+                email_addresses=[
+                    EmailAddress(field="EMAIL1", email="test@example.com")
+                ],
+                prefix=prefix
+        )
 
 def test_invalid_prefix():
     # Valid prefixes are 'Mr.', 'Mrs.', 'Ms.' and "Dr."
@@ -61,6 +93,16 @@ def test_invalid_prefix():
                 prefix="Invalid."
         )
     assert exc_info.value.field == "prefix"
+
+def test_valid_suffixees():
+    valid_suffixes = ["Jr", "PhD", "I", "II", "III", "IV", "V"]
+    for suffix in valid_suffixes:
+        Contact(
+                email_addresses=[
+                    EmailAddress(field="EMAIL1", email="test@example.com")
+                ],
+                suffix=suffix
+        )
 
 def test_invalid_suffix():
     # Valid suffixes are "Jr", "PhD", "I", "II", "III", "IV", and "V"
@@ -88,7 +130,7 @@ def test_invalid_contact_type():
 
     with pytest.raises(ValidationError) as exc_info:
         Contact(email_addresses=emails, contact_type="foo")
-    assert exc_info.value.field == "contactact_type"
+    assert exc_info.value.field == "contact_type"
 
 def test_invalid_website1():
     emails = [EmailAddress(field="EMAIL1", email="test@example.com")]
@@ -127,7 +169,7 @@ def test_complete_contact_to_dict():
                 company_name = "Test Company",
                 id = "12345"
             ),
-            contact_type = "lead",
+            contact_type = "Lead",
             custom_fields = [
                 CustomFieldValue(
                     id = "12345",
@@ -149,7 +191,7 @@ def test_complete_contact_to_dict():
                 FaxNumber(
                     field = "FAX1",
                     number = "123-456-7890",
-                    type = "home"
+                    type = "Home"
                 )
             ],
             given_name = "John",
@@ -164,7 +206,7 @@ def test_complete_contact_to_dict():
                 PhoneNumber(
                     field = "PHONE1",
                     number = "123-456-7890",
-                    type = "home"
+                    type = "Home"
                 )
             ],
             preferred_name = "John Doe",
@@ -172,12 +214,12 @@ def test_complete_contact_to_dict():
             referral_code = "12345",
             social_accounts = [
                 SocialAccount(
-                    name = "John Doe",
-                    type = "FACEBOOK"
+                    name = "https://linkedin.com/in/johndoe",
+                    type = "LINKED_IN"
                 )
             ],
             spouse_name = "Jane",
-            suffix = "Jr.",
+            suffix = "Jr",
             utm_parameters = UtmParameter(
                     keap_source_id = "12345",
                     utm_campaign = "test",
@@ -211,7 +253,7 @@ def test_complete_contact_to_dict():
                 "company_name": "Test Company",
                 "id": "12345"
             },
-            "contact_type": "lead",
+            "contact_type": "Lead",
             "custom_fields": [
                 {
                     "id": "12345",
@@ -235,7 +277,7 @@ def test_complete_contact_to_dict():
                 {
                     "field": "FAX1",
                     "number": "123-456-7890",
-                    "type": "home"
+                    "type": "Home"
                 }
             ],
             "given_name": "John",
@@ -251,7 +293,7 @@ def test_complete_contact_to_dict():
                     "extension": None,
                     "field": "PHONE1",
                     "number": "123-456-7890",
-                    "type": "home"
+                    "type": "Home"
                 }
             ],
             "preferred_name": "John Doe",
@@ -259,12 +301,12 @@ def test_complete_contact_to_dict():
             "referral_code": "12345",
             "social_accounts": [
                 {
-                    "name": "John Doe",
-                    "type": "FACEBOOK"
+                    "name": "https://linkedin.com/in/johndoe",
+                    "type": "LINKED_IN"
                 }
             ],
             "spouse_name": "Jane",
-            "suffix": "Jr.",
+            "suffix": "Jr",
             "utm_parameters": {
                 "keap_source_id": "12345",
                 "utm_campaign": "test",

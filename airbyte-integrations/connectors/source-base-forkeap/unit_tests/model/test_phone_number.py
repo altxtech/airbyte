@@ -20,7 +20,12 @@ def test_phone_invalid_field2():
         PhoneNumber(field="PHONE_NUMBER_FIELD_UNSPECIFIED", number="123-456-7890", type="Home")
     assert exc_info.value.field == "field"
 
-def test_phone_valid_type():
+def test_phone_valid_types():
+    valid_types = ["Work", "Home", "Mobile", "Other"]
+    for type in valid_types:
+        PhoneNumber(field="PHONE1", number="123-456-1234", type=type)
+
+def test_phone_invalid_type():
     with pytest.raises(ValidationError) as exc_info:
         PhoneNumber(field="PHONE1", number="123-456-7890", type="invalid")
     assert exc_info.value.field == "type"
