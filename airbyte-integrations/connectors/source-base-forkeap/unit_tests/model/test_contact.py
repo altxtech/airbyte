@@ -60,7 +60,7 @@ def test_address_repeated_field():
             Address(field="BILLING", country_code="USA")
     ]
     with pytest.raises(ValidationError) as exc_info:
-        Contact(email_addresses=[EmailAddress(field="EMAIL1", email="test1@example.com")], addresses=faxes)
+        Contact(email_addresses=[EmailAddress(field="EMAIL1", email="test1@example.com")], addresses=addresses)
 
     assert exc_info.value.field == "addresses"
 
