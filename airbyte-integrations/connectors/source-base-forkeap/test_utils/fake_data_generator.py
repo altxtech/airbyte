@@ -178,7 +178,8 @@ def fake_utm_parameter() -> contact.UtmParameter:
 
     return utm_parameter
 
-def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optional[bool] = False):
+def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optional[bool] = False, with_leadsource_id: Optional[bool] = False,
+                 with_owner_id: Optional[bool] = False):
 
     # Contact needs at least one email address
     email_addresses: List[contact.EmailAddress] = []
@@ -231,7 +232,7 @@ def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optio
     if random() > 0.5:
         f_contact.job_title = fake.job()
 
-    if random() > 0.5:
+    if with_leadsource_id:
         f_contact.leadsource_id = str(randint(0, MAX_ID))
 
     if random() > 0.5:
@@ -240,7 +241,7 @@ def fake_contact(with_company: Optional[bool] = False, with_custom_fields: Optio
     if random() > 0.5:
         f_contact.origin = fake_origin_request()
 
-    if random() > 0.5:
+    if with_owner_id:
         f_contact.owner_id = str(randint(0, MAX_ID))
 
     valid_fields = ["PHONE1", "PHONE2", "PHONE3", "PHONE4", "PHONE5"]
